@@ -1,8 +1,11 @@
+import 'package:chat_app/helpers/show_alert.dart';
+import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/widgets/custom_button.dart';
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/custom_labels.dart';
 import 'package:chat_app/widgets/custom_logo.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatelessWidget {
   @override
@@ -53,6 +56,7 @@ class __FormState extends State<_Form> {
   final _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -81,11 +85,23 @@ class __FormState extends State<_Form> {
           ),
           SizedBox(height: 10),
           CustomButton(
-            text: 'Ingresar',
-            onPress: () {
-              print(_emailController.text);
-              print(_passwordController.text);
-            },
+            text: 'Registrarse',
+            onPressed: authService.isRegister
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final registerState = await authService.register(
+                      _nameController.text.trim(),
+                      _emailController.text.trim(),
+                      _passwordController.text.trim(),
+                    );
+
+                    if (registerState == true) {
+                      Navigator.pushReplacementNamed(context, 'users');
+                    } else {
+                      showAlert(context, 'Error', registerState);
+                    }
+                  },
           ),
         ],
       ),

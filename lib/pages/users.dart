@@ -1,4 +1,6 @@
+import 'package:chat_app/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:chat_app/models/user.dart';
 
@@ -12,22 +14,20 @@ class _UsersPageState extends State<UsersPage> {
       RefreshController(initialRefresh: false);
 
   final users = [
-    User(uuid: '1', name: 'Ivan', email: 'ivan@gmail.com', online: true),
-    User(uuid: '2', name: 'Dario', email: 'dario@gmail.com', online: true),
-    User(uuid: '3', name: 'Avila', email: 'avila@gmail.com', online: true),
+    User(uid: '1', name: 'Ivan', email: 'ivan@gmail.com', online: true),
+    User(uid: '2', name: 'Dario', email: 'dario@gmail.com', online: true),
+    User(uid: '3', name: 'Avila', email: 'avila@gmail.com', online: true),
     User(
-        uuid: '4',
-        name: 'Martinez',
-        email: 'martinez@gmail.com',
-        online: false),
+        uid: '4', name: 'Martinez', email: 'martinez@gmail.com', online: false),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<AuthService>(context).user;
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Mi nombre',
+            user.name,
             style: TextStyle(
               color: Colors.black87,
             ),
@@ -40,7 +40,10 @@ class _UsersPageState extends State<UsersPage> {
               Icons.exit_to_app_outlined,
               color: Colors.black87,
             ),
-            onPressed: () {},
+            onPressed: () {
+              AuthService.deleteToken();
+              Navigator.pushReplacementNamed(context, 'login');
+            },
           ),
           actions: [
             Container(
@@ -49,10 +52,6 @@ class _UsersPageState extends State<UsersPage> {
                 Icons.check_circle_outline,
                 color: Colors.blue[400],
               ),
-              // child: Icon(
-              //   Icons.offline_bolt_outlined,
-              //   color: Colors.red,
-              // ),
             )
           ],
         ),
@@ -63,13 +62,6 @@ class _UsersPageState extends State<UsersPage> {
           header: WaterDropMaterialHeader(
             backgroundColor: Colors.blue[300],
           ),
-          // header: WaterDropHeader(
-          //   complete: Icon(
-          //     Icons.check,
-          //     color: Colors.blue[400],
-          //   ),
-          //   waterDropColor: Colors.blue[400],
-          // ),
           child: _listViewUsers(),
         ));
   }

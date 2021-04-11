@@ -1,8 +1,11 @@
+import 'package:chat_app/helpers/show_alert.dart';
+import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/widgets/custom_button.dart';
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/custom_labels.dart';
 import 'package:chat_app/widgets/custom_logo.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -50,8 +53,10 @@ class _Form extends StatefulWidget {
 class __FormState extends State<_Form> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -74,10 +79,21 @@ class __FormState extends State<_Form> {
           SizedBox(height: 10),
           CustomButton(
             text: 'Ingresar',
-            onPress: () {
-              print(_emailController.text);
-              print(_passwordController.text);
-            },
+            onPressed: authService.isLogin
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final loginState = await authService.login(
+                        _emailController.text.trim(),
+                        _passwordController.text.trim());
+
+                    if (loginState) {
+                      Navigator.pushReplacementNamed(context, 'users');
+                    } else {
+                      showAlert(context, 'Error al ingresar',
+                          'Revise sus credenciales');
+                    }
+                  },
           ),
         ],
       ),
